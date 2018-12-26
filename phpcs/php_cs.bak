@@ -1,0 +1,92 @@
+<?php
+$header = <<<'EOF'
+This file is part of PHP CS Fixer.
+(c) Fabien Potencier <fabien@symfony.com>
+    Dariusz Rumiński <dariusz.ruminski@gmail.com>
+This source file is subject to the MIT license that is bundled
+with this source code in the file LICENSE.
+EOF;
+$config = PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
+    ->setRules([
+        '@PHP71Migration:risky' => true,
+        '@PHPUnit60Migration:risky' => true,
+        '@Symfony' => true,
+        '@Symfony:risky' => true,
+
+        'array_syntax' => ['syntax' => 'short'], // 使用短数组
+        'binary_operator_spaces' => [ // 设置对齐
+            'align_single_space_minimal' => true,
+        ],
+
+        'blank_line_after_namespace' => true, // 命名空间声明之后必须有一个空行。
+        'blank_line_before_statement' => ['break', 'continue', 'declare', 'return', 'throw', 'try'], // 之前有换行
+        'blank_line_before_return' => true, // return之前换行
+        'braces' => [
+            'allow_single_line_closure' => true, // 允许单行lambda表示法
+        ],
+        'declare_equal_normalize' => ['space' => 'single'], // 等号周围空格
+        'explicit_indirect_variable' => true,  // 将大括号添加到间接变量中，使其明确理解 需要PHP> = 7.0。
+        'explicit_string_variable' => true, // 使用双引号字符串或heredoc语法将隐式变量转换为显式变量。
+        'function_typehint_space' => true, // 在函数的参数和它的typehint之间添加缺少的空格。
+        'single_line_comment_style' => true,
+        'hash_to_slash_comment' => true, // 单行注释应该使用双斜杠//而不是散列#
+        'lowercase_cast' => true,
+        'lowercase_constants' => true,
+        'lowercase_keywords' => true, // 关键字必须小写
+        'header_comment' => ['header' => $header],
+        'heredoc_to_nowdoc' => true,
+        'method_chaining_indentation' => true, // 链式调用缩进
+        'method_argument_space' => ['ensure_fully_multiline' => true], // 确保多行参数列表的每个参数都在自己的行上
+        'method_separation' => true, // 方法必须有个空行
+        'no_closing_tag' => true, // 只有PHP语法的省略?>
+        'no_extra_consecutive_blank_lines' => ['tokens' => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block']],
+        'no_multiline_whitespace_around_double_arrow' => true, // 运算符=>不应该被多行空格所包围
+        'no_multiline_whitespace_before_semicolons' => true, // 禁止分号之前的多行空格
+        'no_null_property_initialization' => true, // 属性不能使用显式初始化null
+        'no_short_echo_tag' => true, // <?=用长格式<?php echo语法替换short-echo
+        'no_singleline_whitespace_before_semicolons' => true, // 禁止分号之前的单行空格
+        'no_spaces_after_function_name' => true, // 在进行方法或函数调用时，方法或函数名称与左括号之间不能有空格
+        'no_spaces_around_offset' => true,
+        'no_superfluous_elseif' => true, // 替换多余elseif的if
+        'no_trailing_comma_in_singleline_array' => true, // PHP单行数组不应该有拖尾的逗号
+        'no_trailing_whitespace' => true, // 删除非空行尾部的尾部空格
+        'no_unused_imports' => true, // 未使用的使用语句必须删除
+        'no_useless_else' => true, // 不应该有无用的else情况
+        'no_useless_return' => true, // 函数结尾不应该有空的return语句
+        'no_whitespace_in_blank_line' => true, // 删除空白行末尾的空格
+        'not_operator_with_successor_space' => true,  // ! 后有空格
+        'object_operator_without_whitespace' => true,  // 对象之前或之后不应该有空格
+        'ordered_class_elements' => true,
+        'ordered_imports' => true,
+        'php_unit_test_class_requires_covers' => true,
+        'phpdoc_add_missing_param_annotation' => true,
+        'phpdoc_align' => ['param', 'return', 'throws', 'type', 'var'], // 给定phpdoc标签的所有项目必须垂直对齐
+        'phpdoc_order' => true,
+        'phpdoc_indent' => true, // 文档块应该与记录的主题具有相同的缩进。
+        'phpdoc_types_order' => true, // 排序PHPDoc类型
+        'semicolon_after_instruction' => true, // 说明必须以分号结尾
+        'yoda_style' => true,
+        'whitespace_after_comma_in_array' => true, // 在数组声明中，每个逗号后都必须有一个空格
+    ])
+    ->setFinder(
+        PhpCsFixer\Finder::create()
+            ->exclude('tests/Fixtures')
+            ->in(__DIR__)
+    )
+    ->setLineEnding("\r\n")
+;
+// special handling of fabbot.io service if it's using too old PHP CS Fixer version
+try {
+    PhpCsFixer\FixerFactory::create()
+        ->registerBuiltInFixers()
+        ->registerCustomFixers($config->getCustomFixers())
+        ->useRuleSet(new PhpCsFixer\RuleSet($config->getRules()));
+} catch (PhpCsFixer\ConfigurationException\InvalidConfigurationException $e) {
+    $config->setRules([]);
+} catch (UnexpectedValueException $e) {
+    $config->setRules([]);
+} catch (InvalidArgumentException $e) {
+    $config->setRules([]);
+}
+return $config;
